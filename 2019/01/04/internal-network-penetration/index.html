@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.6.0" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.6.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.6.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.6.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.6.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.6.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="前言​    在我国，由于网民众多，运营商无法保证为每一个宽带用户提供全球唯一的公网IPv4地址。而还有一些情况下，公网IP比较昂贵，企业虽然本身也持有少量的独立的公网IP，但是由于成本限制无法为企业内每一台主机都提供一个公网IP，或者内网并不是所有服务都需要暴露到公网中进行访问，那么企业有可能就会使用NAT技术将大量的内网IP通过一定规则映射到公网IP上。而最常见的其中一种技术就是NAPT，也叫">
+<meta name="keywords" content="Ngrok,NAT,端口转发,端口映射">
+<meta property="og:type" content="article">
+<meta property="og:title" content="内网穿透">
+<meta property="og:url" content="http://blog.dongzi.co/2019/01/04/internal-network-penetration/index.html">
+<meta property="og:site_name" content="鄢东子">
+<meta property="og:description" content="前言​    在我国，由于网民众多，运营商无法保证为每一个宽带用户提供全球唯一的公网IPv4地址。而还有一些情况下，公网IP比较昂贵，企业虽然本身也持有少量的独立的公网IP，但是由于成本限制无法为企业内每一台主机都提供一个公网IP，或者内网并不是所有服务都需要暴露到公网中进行访问，那么企业有可能就会使用NAT技术将大量的内网IP通过一定规则映射到公网IP上。而最常见的其中一种技术就是NAPT，也叫">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-01-04T03:14:21.075Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="内网穿透">
+<meta name="twitter:description" content="前言​    在我国，由于网民众多，运营商无法保证为每一个宽带用户提供全球唯一的公网IPv4地址。而还有一些情况下，公网IP比较昂贵，企业虽然本身也持有少量的独立的公网IP，但是由于成本限制无法为企业内每一台主机都提供一个公网IP，或者内网并不是所有服务都需要暴露到公网中进行访问，那么企业有可能就会使用NAT技术将大量的内网IP通过一定规则映射到公网IP上。而最常见的其中一种技术就是NAPT，也叫">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="鄢东子" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="http://blog.dongzi.co/2019/01/04/internal-network-penetration/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>内网穿透 | 鄢东子</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion .logo-line-before i { left: initial; }
+    .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">鄢东子</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.dongzi.co/2019/01/04/internal-network-penetration/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Pacino Yan">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="鄢东子">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">内网穿透
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-01-04 11:11:02 / 修改时间：11:14:21" itemprop="dateCreated datePublished" datetime="2019-01-04T11:11:02+08:00">2019-01-04</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/计算机网络/" itemprop="url" rel="index"><span itemprop="name">计算机网络</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="&#x524D;&#x8A00;"><a href="#&#x524D;&#x8A00;" class="headerlink" title="&#x524D;&#x8A00;"></a>&#x524D;&#x8A00;</h3><p>&#x200B;    &#x5728;&#x6211;&#x56FD;&#xFF0C;&#x7531;&#x4E8E;&#x7F51;&#x6C11;&#x4F17;&#x591A;&#xFF0C;&#x8FD0;&#x8425;&#x5546;&#x65E0;&#x6CD5;&#x4FDD;&#x8BC1;&#x4E3A;&#x6BCF;&#x4E00;&#x4E2A;&#x5BBD;&#x5E26;&#x7528;&#x6237;&#x63D0;&#x4F9B;&#x5168;&#x7403;&#x552F;&#x4E00;&#x7684;&#x516C;&#x7F51;IPv4&#x5730;&#x5740;&#x3002;&#x800C;&#x8FD8;&#x6709;&#x4E00;&#x4E9B;&#x60C5;&#x51B5;&#x4E0B;&#xFF0C;&#x516C;&#x7F51;IP&#x6BD4;&#x8F83;&#x6602;&#x8D35;&#xFF0C;&#x4F01;&#x4E1A;&#x867D;&#x7136;&#x672C;&#x8EAB;&#x4E5F;&#x6301;&#x6709;&#x5C11;&#x91CF;&#x7684;&#x72EC;&#x7ACB;&#x7684;&#x516C;&#x7F51;IP&#xFF0C;&#x4F46;&#x662F;&#x7531;&#x4E8E;&#x6210;&#x672C;&#x9650;&#x5236;&#x65E0;&#x6CD5;&#x4E3A;&#x4F01;&#x4E1A;&#x5185;&#x6BCF;&#x4E00;&#x53F0;&#x4E3B;&#x673A;&#x90FD;&#x63D0;&#x4F9B;&#x4E00;&#x4E2A;&#x516C;&#x7F51;IP&#xFF0C;&#x6216;&#x8005;&#x5185;&#x7F51;&#x5E76;&#x4E0D;&#x662F;&#x6240;&#x6709;&#x670D;&#x52A1;&#x90FD;&#x9700;&#x8981;&#x66B4;&#x9732;&#x5230;&#x516C;&#x7F51;&#x4E2D;&#x8FDB;&#x884C;&#x8BBF;&#x95EE;&#xFF0C;&#x90A3;&#x4E48;&#x4F01;&#x4E1A;&#x6709;&#x53EF;&#x80FD;&#x5C31;&#x4F1A;&#x4F7F;&#x7528;<u><strong><em>NAT</em></strong></u>&#x6280;&#x672F;&#x5C06;&#x5927;&#x91CF;&#x7684;&#x5185;&#x7F51;IP&#x901A;&#x8FC7;&#x4E00;&#x5B9A;&#x89C4;&#x5219;&#x6620;&#x5C04;&#x5230;&#x516C;&#x7F51;IP&#x4E0A;&#x3002;&#x800C;&#x6700;&#x5E38;&#x89C1;&#x7684;&#x5176;&#x4E2D;&#x4E00;&#x79CD;&#x6280;&#x672F;&#x5C31;&#x662F;<strong><em><u>NAPT</u></em></strong>&#xFF0C;&#x4E5F;&#x53EB;&#x201C;<strong><u>&#x7F51;&#x7EDC;&#x7AEF;&#x53E3;&#x5730;&#x5740;&#x8F6C;&#x6362;</u></strong>&#x201D;&#x3002;&#x56E0;&#x4E3A;&#x4E00;&#x822C;&#x4E00;&#x4E2A;&#x670D;&#x52A1;&#x90FD;&#x662F;&#x901A;&#x8FC7;&#x4E00;&#x4E2A;&#x7AEF;&#x53E3;&#x6765;&#x63D0;&#x4F9B;&#xFF0C;&#x56E0;&#x6B64;&#x901A;&#x8FC7;&#x8FD9;&#x79CD;&#x65B9;&#x5F0F;&#x53EF;&#x4EE5;&#x5C06;&#x7279;&#x5B9A;&#x7684;&#x670D;&#x52A1;&#x901A;&#x8FC7;&#x7279;&#x5B9A;&#x7684;&#x89C4;&#x5219;&#x5F00;&#x653E;&#x5230;&#x5C11;&#x91CF;&#x7684;&#x516C;&#x7F51;IP&#x4E0A;&#x3002;</p>
+<h3 id="NAT&#x5B9E;&#x73B0;&#x65B9;&#x5F0F;"><a href="#NAT&#x5B9E;&#x73B0;&#x65B9;&#x5F0F;" class="headerlink" title="NAT&#x5B9E;&#x73B0;&#x65B9;&#x5F0F;"></a>NAT&#x5B9E;&#x73B0;&#x65B9;&#x5F0F;</h3><p>&#x200B;    NAT&#x7684;&#x5B9E;&#x73B0;&#x65B9;&#x5F0F;&#x6709;&#x4E09;&#x79CD;&#xFF0C;&#x5373;<u><strong>&#x9759;&#x6001;&#x8F6C;&#x6362;</strong></u>&#xFF08;Static Nat&#xFF09;&#x3001;<u><strong>&#x52A8;&#x6001;&#x8F6C;&#x6362;</strong></u>&#xFF08;Dynamic Nat&#xFF09;&#x548C;<u><strong>&#x7AEF;&#x53E3;&#x591A;&#x8DEF;&#x590D;&#x7528;</strong></u>&#xFF08;OverLoad&#xFF09;</p>
+<h3 id="NAPT&#x539F;&#x7406;"><a href="#NAPT&#x539F;&#x7406;" class="headerlink" title="NAPT&#x539F;&#x7406;"></a>NAPT&#x539F;&#x7406;</h3><a id="more"></a>
+<p>&#x200B;    &#x7B80;&#x5355;&#x6765;&#x8BF4;&#xFF0C;&#x5728;NAT&#x7F51;&#x5173;&#x4E0A;&#x4F1A;&#x6709;&#x4E00;&#x5F20;<strong><u>&#x6620;&#x5C04;&#x8868;</u></strong>&#xFF0C;&#x8868;&#x4E0A;&#x8BB0;&#x5F55;&#x4E86;&#x5185;&#x7F51;&#x5411;&#x516C;&#x7F51;&#x54EA;&#x4E2A;IP&#x548C;&#x7AEF;&#x53E3;&#x53D1;&#x8D77;&#x4E86;&#x8BF7;&#x6C42;&#xFF0C;&#x7136;&#x540E;&#x5982;&#x679C;&#x5185;&#x7F51;&#x6709;&#x4E3B;&#x673A;&#x5411;&#x516C;&#x7F51;&#x8BBE;&#x5907;&#x53D1;&#x8D77;&#x4E86;&#x8BF7;&#x6C42;&#xFF0C;&#x5185;&#x7F51;&#x4E3B;&#x673A;&#x7684;&#x8BF7;&#x6C42;&#x6570;&#x636E;&#x5305;&#x4F20;&#x8F93;&#x5230;&#x4E86;NAT&#x7F51;&#x5173;&#x4E0A;&#xFF0C;&#x90A3;&#x4E48;==NAT&#x7F51;&#x5173;&#x4F1A;&#x4FEE;&#x6539;&#x8BE5;&#x6570;&#x636E;&#x5305;&#x7684;&#x6E90;IP&#x5730;&#x5740;&#x548C;&#x6E90;&#x7AEF;&#x53E3;&#x4E3A;NAT&#x7F51;&#x5173;&#x81EA;&#x8EAB;&#x7684;IP&#x5730;&#x5740;&#x548C;&#x4EFB;&#x610F;&#x4E00;&#x4E2A;&#x4E0D;&#x51B2;&#x7A81;&#x7684;&#x81EA;&#x8EAB;&#x672A;&#x4F7F;&#x7528;&#x7684;&#x7AEF;&#x53E3;==&#xFF0C;&#x5E76;&#x4E14;&#x628A;&#x8FD9;&#x4E2A;&#x4FEE;&#x6539;&#x8BB0;&#x5F55;&#x5230;&#x90A3;&#x5F20;&#x6620;&#x5C04;&#x8868;&#x4E0A;&#x3002;&#x6700;&#x540E;&#x628A;&#x4FEE;&#x6539;&#x4E4B;&#x540E;&#x7684;&#x6570;&#x636E;&#x5305;&#x53D1;&#x9001;&#x5230;&#x8BF7;&#x6C42;&#x7684;&#x76EE;&#x6807;&#x4E3B;&#x673A;&#xFF0C;&#x7B49;&#x76EE;&#x6807;&#x4E3B;&#x673A;&#x53D1;&#x56DE;&#x4E86;&#x54CD;&#x5E94;&#x5305;&#x4E4B;&#x540E;&#xFF0C;&#x518D;&#x6839;&#x636E;&#x54CD;&#x5E94;&#x5305;&#x91CC;&#x9762;&#x7684;&#x76EE;&#x7684;IP&#x5730;&#x5740;&#x548C;&#x76EE;&#x7684;&#x7AEF;&#x53E3;&#x53BB;&#x6620;&#x5C04;&#x8868;&#x91CC;&#x9762;&#x627E;&#x5230;&#x8BE5;&#x8F6C;&#x53D1;&#x7ED9;&#x54EA;&#x4E2A;&#x5185;&#x7F51;&#x4E3B;&#x673A;&#x3002;&#x8FD9;&#x6837;&#x5C31;&#x5B9E;&#x73B0;&#x4E86;&#x5185;&#x7F51;&#x4E3B;&#x673A;&#x5728;&#x6CA1;&#x6709;&#x516C;&#x7F51;IP&#x7684;&#x60C5;&#x51B5;&#x4E0B;&#xFF0C;&#x901A;&#x8FC7;<u>NAPT</u>&#x6280;&#x672F;&#x501F;&#x52A9;&#x8DEF;&#x7531;&#x5668;&#x552F;&#x4E00;&#x7684;&#x4E00;&#x4E2A;&#x516C;&#x7F51;IP&#x6765;&#x8BBF;&#x95EE;&#x516C;&#x7F51;&#x8BBE;&#x5907;&#x3002;</p>
+<p>&#x200B;    &#x4ECE;&#x8FD9;&#x91CC;&#x6211;&#x4EEC;&#x53EF;&#x4EE5;&#x770B;&#x5230;&#xFF0C;NAPT&#x53EA;&#x89E3;&#x51B3;&#x4E86;&#x5185;&#x7F51;&#x4E3B;&#x673A;&#x5728;&#x6CA1;&#x6709;&#x516C;&#x7F51;IP&#x7684;&#x60C5;&#x51B5;&#x4E0B;&#x5982;&#x4F55;&#x8BBF;&#x95EE;&#x516C;&#x7F51;&#x4E3B;&#x673A;&#x7684;&#x95EE;&#x9898;&#xFF0C;&#x4F46;&#x662F;==&#x5E76;&#x4E0D;&#x80FD;&#x89E3;&#x51B3;&#x516C;&#x7F51;&#x4E3B;&#x673A;&#x4E3B;&#x52A8;&#x5411;&#x5185;&#x7F51;&#x4E3B;&#x673A;&#x53D1;&#x8D77;&#x8BF7;&#x6C42;&#x7684;&#x95EE;&#x9898;==&#x3002;</p>
+<h3 id="&#x5185;&#x7F51;&#x7A7F;&#x900F;"><a href="#&#x5185;&#x7F51;&#x7A7F;&#x900F;" class="headerlink" title="&#x5185;&#x7F51;&#x7A7F;&#x900F;"></a>&#x5185;&#x7F51;&#x7A7F;&#x900F;</h3><p>&#x200B;    &#x81EA;&#x5EFA;&#x670D;&#x52A1;&#x5668;&#x6216;&#x8005;&#x76D1;&#x63A7;&#x65F6;&#xFF0C;&#x5982;&#x4F55;==&#x4F7F;&#x5916;&#x7F51;&#x8BBE;&#x5907;&#x8BBF;&#x95EE;&#x5230;&#x5185;&#x7F51;==&#xFF0C;&#x662F;&#x4E2A;&#x9EBB;&#x70E6;&#x95EE;&#x9898;&#x3002;&#x8FD9;&#x4E2A;&#x4EFB;&#x52A1;&#x79F0;&#x4E3A;&#x5185;&#x7F51;&#x7A7F;&#x900F;&#xFF0C;&#x89E3;&#x51B3;&#x65B9;&#x6CD5;&#x901A;&#x5E38;&#x662F;<u><strong>&#x7AEF;&#x53E3;&#x6620;&#x5C04;</strong></u>&#x4E0E;<u><strong>&#x7AEF;&#x53E3;&#x8F6C;&#x53D1;</strong></u>&#x3002;</p>
+<p>####&#x7AEF;&#x53E3;&#x6620;&#x5C04;</p>
+<p>&#x200B;    &#x7AEF;&#x53E3;&#x6620;&#x5C04;&#x5C31;&#x662F;&#x5C06;&#x5916;&#x7F51;&#x4E3B;&#x673A;&#x7684;IP&#x5730;&#x5740;&#x7684;&#x4E00;&#x4E2A;&#x7AEF;&#x53E3;&#x6620;&#x5C04;&#x5230;&#x5185;&#x7F51;&#x4E2D;&#x4E00;&#x53F0;&#x673A;&#x5668;&#xFF0C;&#x63D0;&#x4F9B;&#x76F8;&#x5E94;&#x7684;&#x670D;&#x52A1;&#x3002;&#x5F53;&#x7528;&#x6237;&#x8BBF;&#x95EE;&#x8BE5;IP&#x7684;&#x8FD9;&#x4E2A;&#x7AEF;&#x53E3;&#x65F6;&#xFF0C;&#x670D;&#x52A1;&#x5668;&#x81EA;&#x52A8;&#x5C06;&#x8BF7;&#x6C42;&#x6620;&#x5C04;&#x5230;&#x5BF9;&#x5E94;&#x5C40;&#x57DF;&#x7F51;&#x5185;&#x90E8;&#x7684;&#x673A;&#x5668;&#x4E0A;&#x3002;&#x7AEF;&#x53E3;&#x6620;&#x5C04;&#x6709;&#x52A8;&#x6001;&#x548C;&#x9759;&#x6001;&#x4E4B;&#x5206;&#x3002;</p>
+<ul>
+<li>linux&#x7AEF;&#x53E3;&#x6620;&#x5C04;&#x5DE5;&#x5177;renetd</li>
+</ul>
+<h4 id="&#x7AEF;&#x53E3;&#x8F6C;&#x53D1;"><a href="#&#x7AEF;&#x53E3;&#x8F6C;&#x53D1;" class="headerlink" title="&#x7AEF;&#x53E3;&#x8F6C;&#x53D1;"></a>&#x7AEF;&#x53E3;&#x8F6C;&#x53D1;</h4><p>&#x200B;    &#x7AEF;&#x53E3;&#x8F6C;&#x53D1;&#x662F;&#x8F6C;&#x53D1;&#x4E00;&#x4E2A;&#x7F51;&#x7EDC;&#x7AEF;&#x53E3;&#x4ECE;&#x4E00;&#x4E2A;&#x7F51;&#x7EDC;&#x8282;&#x70B9;&#x5230;&#x53E6;&#x4E00;&#x4E2A;&#x7F51;&#x7EDC;&#x8282;&#x70B9;&#x7684;&#x884C;&#x4E3A;&#xFF0C;&#x5176;&#x4F7F;&#x4E00;&#x4E2A;&#x5916;&#x90E8;&#x7528;&#x6237;&#x4ECE;&#x5916;&#x90E8;&#x7ECF;&#x8FC7;&#x4E00;&#x4E2A;&#x88AB;&#x6FC0;&#x6D3B;&#x7684;NAT&#x8DEF;&#x7531;&#x5668;&#x5230;&#x8FBE;&#x4E00;&#x4E2A;&#x5728;&#x79C1;&#x6709;&#x5185;&#x90E8;IP&#x5730;&#x5740;&#xFF08;&#x5C40;&#x57DF;&#x7F51;&#x5185;&#x90E8;&#xFF09;&#x4E0A;&#x7684;&#x4E00;&#x4E2A;&#x7AEF;&#x53E3;&#x3002;</p>
+<ul>
+<li><p>&#x57FA;&#x4E8E;&#x53CD;&#x5411;&#x96A7;&#x9053;&#x7684;&#x7AEF;&#x53E3;&#x8F6C;&#x53D1;</p>
+<p>&#x200B;    &#x5047;&#x8BBE;&#x76EE;&#x524D;&#x6709;&#x4E24;&#x53F0;host&#x4E3B;&#x673A;host1&#x4E0E;host2&#xFF0C;host1&#x662F;&#x4E00;&#x53F0;&#x5185;&#x7F51;&#x673A;&#x5668;&#xFF0C;&#x5B83;&#x53EF;&#x4EE5;&#x8FDE;&#x63A5;&#x5916;&#x7F51;&#x7684;host2&#xFF0C;&#x4F46;&#x662F;&#x53CD;&#x8FC7;&#x6765;&#x5C31;&#x4E0D;&#x884C;&#xFF0C;&#x5916;&#x7F51;&#x7684;host2&#x8FDE;&#x4E0D;&#x4E0A;&#x5185;&#x7F51;&#x7684;host1&#x3002;&#x89E3;&#x51B3;&#x529E;&#x6CD5;&#x662F;&#xFF0C;&#x65E2;&#x7136;host1&#x53EF;&#x4EE5;&#x8FDE;host2&#xFF0C;&#x90A3;&#x4E48;&#x5C31;&#x4ECE;host1&#x4E0A;&#x5EFA;&#x7ACB;&#x4E0E;host2&#x7684;SSH&#x8FDE;&#x63A5;&#xFF0C;&#x7136;&#x540E;&#x5728;host2&#x4E0A;&#x4F7F;&#x7528;&#x8FD9;&#x6761;&#x8FDE;&#x63A5;&#x5C31;&#x53EF;&#x4EE5;&#x4E86;&#x3002;<a href="https://cuiqingcai.com/5876.html" target="_blank" rel="noopener">SSH&#x53CD;&#x5411;&#x96A7;&#x9053;&#x7684;&#x642D;&#x5EFA;</a>&#x3002;</p>
+</li>
+<li><p>&#x57FA;&#x4E8E;&#x53CD;&#x5411;&#x4EE3;&#x7406;&#x7684;&#x7AEF;&#x53E3;&#x8F6C;&#x53D1;</p>
+<p>&#x200B;    <a href="">&#x642D;&#x5EFA;ngrok&#x670D;&#x52A1;&#x5668;&#x5B9E;&#x73B0;&#x5185;&#x7F51;&#x7A7F;&#x900F;</a>&#x3002;</p>
+</li>
+</ul>
+<h4 id="&#x7AEF;&#x53E3;&#x6620;&#x5C04;&#x4E0E;&#x7AEF;&#x53E3;&#x8F6C;&#x53D1;&#x7684;&#x533A;&#x522B;"><a href="#&#x7AEF;&#x53E3;&#x6620;&#x5C04;&#x4E0E;&#x7AEF;&#x53E3;&#x8F6C;&#x53D1;&#x7684;&#x533A;&#x522B;" class="headerlink" title="&#x7AEF;&#x53E3;&#x6620;&#x5C04;&#x4E0E;&#x7AEF;&#x53E3;&#x8F6C;&#x53D1;&#x7684;&#x533A;&#x522B;"></a>&#x7AEF;&#x53E3;&#x6620;&#x5C04;&#x4E0E;&#x7AEF;&#x53E3;&#x8F6C;&#x53D1;&#x7684;&#x533A;&#x522B;</h4><ul>
+<li><p>&#x8F6C;&#x53D1;&#x4E0E;&#x6620;&#x5C04;&#xFF0C;&#x6309;&#x7406;&#x89E3;&#x610F;&#x601D;&#xFF0C;&#x662F;&#x7528;&#x4E0D;&#x540C;&#x7684;&#x65B9;&#x6CD5;&#x5B9E;&#x73B0;&#x540C;&#x6837;&#x7684;&#x76EE;&#x6807;&#x3002;</p>
+</li>
+<li><p>&#x7AEF;&#x53E3;&#x8F6C;&#x53D1;&#xFF1A;&#x4F60;&#x7ED9;&#x6211;&#x4E86;&#xFF0C;&#x6211;&#x6253;&#x5F00;&#x770B;&#x770B;&#xFF0C;&#x53D1;&#x73B0;&#x8FD9;&#x4E0A;&#x9762;&#x6807;&#x5FD7;&#x663E;&#x793A;&#x662F;&#x8981;&#x7ED9;&#x5F20;&#x4E09;&#xFF0C;&#x90A3;&#x4E48;&#x6211;&#x5C31;&#x7ED9;&#x5F20;&#x4E09;&#x53BB;&#x3002;&#x5982;&#x679C;&#x6807;&#x5FD7;&#x662F;&#x7ED9;&#x674E;&#x56DB;&#xFF0C;&#x90A3;&#x6211;&#x5C31;&#x518D;&#x7ED9;&#x674E;&#x56DB;&#x53BB;&#x3002;</p>
+</li>
+<li><p>&#x7AEF;&#x53E3;&#x6620;&#x5C04;&#xFF1A;&#x4F60;&#x653E;&#x5230;&#x6211;&#x5DE6;&#x624B;&#xFF0C;&#x6211;&#x5C31;&#x76F4;&#x63A5;&#x7ED9;&#x5F20;&#x4E09;&#xFF1B;&#x4F60;&#x653E;&#x5230;&#x6211;&#x53F3;&#x624B;&#xFF0C;&#x6211;&#x5C31;&#x76F4;&#x63A5;&#x7ED9;&#x674E;&#x56DB;&#x3002;&#x8FD9;&#x4E2D;&#x95F4;&#x6211;&#x4E0D;&#x7BA1;&#x4F60;&#x653E;&#x6211;&#x624B;&#x4E0A;&#x7684;&#x662F;&#x4EC0;&#x4E48;&#x4E1C;&#x897F;&#x3002;</p>
+</li>
+</ul>
+<script>
+        document.querySelectorAll('.github-emoji')
+          .forEach(el => {
+            if (!el.dataset.src) { return; }
+            const img = document.createElement('img');
+            img.style = 'display:none !important;';
+            img.src = el.dataset.src;
+            img.addEventListener('error', () => {
+              img.remove();
+              el.style.color = 'inherit';
+              el.style.backgroundImage = 'none';
+              el.style.background = 'none';
+            });
+            img.addEventListener('load', () => {
+              img.remove();
+            });
+            document.body.appendChild(img);
+          });
+      </script>
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Ngrok/" rel="tag"># Ngrok</a>
+          
+            <a href="/tags/NAT/" rel="tag"># NAT</a>
+          
+            <a href="/tags/端口转发/" rel="tag"># 端口转发</a>
+          
+            <a href="/tags/端口映射/" rel="tag"># 端口映射</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/01/02/SpringMVC-Env/" rel="next" title="SpringMVC环境搭建">
+                <i class="fa fa-chevron-left"></i> SpringMVC环境搭建
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="Pacino Yan">
+            
+              <p class="site-author-name" itemprop="name">Pacino Yan</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">9</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/pacinoyan" title="GitHub &rarr; https://github.com/pacinoyan" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://weibo.com/u/2168062210" title="Weibo &rarr; https://weibo.com/u/2168062210" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NAT实现方式"><span class="nav-number">2.</span> <span class="nav-text">NAT实现方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NAPT原理"><span class="nav-number">3.</span> <span class="nav-text">NAPT原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#内网穿透"><span class="nav-number">4.</span> <span class="nav-text">内网穿透</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#端口转发"><span class="nav-number">4.1.</span> <span class="nav-text">端口转发</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#端口映射与端口转发的区别"><span class="nav-number">4.2.</span> <span class="nav-text">端口映射与端口转发的区别</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Pacino Yan</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v6.6.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.6.0"></script>
+
+  <script src="/js/src/motion.js?v=6.6.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/affix.js?v=6.6.0"></script>
+
+  <script src="/js/src/schemes/pisces.js?v=6.6.0"></script>
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.6.0"></script>
+<script src="/js/src/post-details.js?v=6.6.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.6.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
