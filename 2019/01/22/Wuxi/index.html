@@ -104,19 +104,19 @@
 
 
 
-  <meta name="description" content="&amp;#x73AF;&amp;#x5883;&amp;#x642D;&amp;#x5EFA;&amp;#x53C2;&amp;#x7167;&amp;#x4E94;&amp;#x8F74;&amp;#x673A;&amp;#x68B0;&amp;#x52A0;&amp;#x5DE5;&amp;#x8F6F;&amp;#x4EF6;&amp;#x5F00;&amp;#x53D1;&amp;#x73AF;&amp;#x5883;&amp;#x642D;&amp;#x5EFA;&amp;#x8BF4;&amp;#x660E; &amp;#x8FD0;&amp;#x884C;&amp;#x754C">
+  <meta name="description" content="环境搭建参照五轴机械加工软件开发环境搭建说明 运行界面 项目结构AcisInitint AcisInitance() 使用api_start_modeller()来启用Acis，并调用api_initialize_hoops_bridge()显示的初始化Hoops/Acis Bridge，ha_bridge封装了很多函数，实现的是Acis与Hoops两个独立类库之间的连接。">
 <meta name="keywords" content="机械加工软件,C++">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Wuxi">
+<meta property="og:title" content="机械加工软件">
 <meta property="og:url" content="http://blog.dongzi.co/2019/01/22/Wuxi/index.html">
 <meta property="og:site_name" content="鄢东子">
-<meta property="og:description" content="&amp;#x73AF;&amp;#x5883;&amp;#x642D;&amp;#x5EFA;&amp;#x53C2;&amp;#x7167;&amp;#x4E94;&amp;#x8F74;&amp;#x673A;&amp;#x68B0;&amp;#x52A0;&amp;#x5DE5;&amp;#x8F6F;&amp;#x4EF6;&amp;#x5F00;&amp;#x53D1;&amp;#x73AF;&amp;#x5883;&amp;#x642D;&amp;#x5EFA;&amp;#x8BF4;&amp;#x660E; &amp;#x8FD0;&amp;#x884C;&amp;#x754C">
+<meta property="og:description" content="环境搭建参照五轴机械加工软件开发环境搭建说明 运行界面 项目结构AcisInitint AcisInitance() 使用api_start_modeller()来启用Acis，并调用api_initialize_hoops_bridge()显示的初始化Hoops/Acis Bridge，ha_bridge封装了很多函数，实现的是Acis与Hoops两个独立类库之间的连接。">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNc79ly1fzf6teigqjj31cy0sb77v.jpg">
-<meta property="og:updated_time" content="2019-01-22T12:08:43.598Z">
+<meta property="og:updated_time" content="2019-01-22T12:31:42.776Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Wuxi">
-<meta name="twitter:description" content="&amp;#x73AF;&amp;#x5883;&amp;#x642D;&amp;#x5EFA;&amp;#x53C2;&amp;#x7167;&amp;#x4E94;&amp;#x8F74;&amp;#x673A;&amp;#x68B0;&amp;#x52A0;&amp;#x5DE5;&amp;#x8F6F;&amp;#x4EF6;&amp;#x5F00;&amp;#x53D1;&amp;#x73AF;&amp;#x5883;&amp;#x642D;&amp;#x5EFA;&amp;#x8BF4;&amp;#x660E; &amp;#x8FD0;&amp;#x884C;&amp;#x754C">
+<meta name="twitter:title" content="机械加工软件">
+<meta name="twitter:description" content="环境搭建参照五轴机械加工软件开发环境搭建说明 运行界面 项目结构AcisInitint AcisInitance() 使用api_start_modeller()来启用Acis，并调用api_initialize_hoops_bridge()显示的初始化Hoops/Acis Bridge，ha_bridge封装了很多函数，实现的是Acis与Hoops两个独立类库之间的连接。">
 <meta name="twitter:image" content="https://ws2.sinaimg.cn/large/006tNc79ly1fzf6teigqjj31cy0sb77v.jpg">
 
 
@@ -136,7 +136,7 @@
   };
 </script>
 
-  <title>Wuxi | 鄢东子</title>
+  <title>机械加工软件 | 鄢东子</title>
   
 
 
@@ -369,7 +369,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Wuxi
+          <h1 class="post-title" itemprop="name headline">机械加工软件
 
               
             
@@ -395,7 +395,7 @@
                 
               
 
-              <time title="创建时间：2019-01-22 13:16:12 / 修改时间：20:08:43" itemprop="dateCreated datePublished" datetime="2019-01-22T13:16:12+08:00">2019-01-22</time>
+              <time title="创建时间：2019-01-22 13:16:12 / 修改时间：20:31:42" itemprop="dateCreated datePublished" datetime="2019-01-22T13:16:12+08:00">2019-01-22</time>
             
 
             
@@ -456,6 +456,7 @@
 <h3 id="&#x9879;&#x76EE;&#x7ED3;&#x6784;"><a href="#&#x9879;&#x76EE;&#x7ED3;&#x6784;" class="headerlink" title="&#x9879;&#x76EE;&#x7ED3;&#x6784;"></a>&#x9879;&#x76EE;&#x7ED3;&#x6784;</h3><h4 id="AcisInit"><a href="#AcisInit" class="headerlink" title="AcisInit"></a>AcisInit</h4><h5 id="int-AcisInitance"><a href="#int-AcisInitance" class="headerlink" title="int AcisInitance()"></a>int AcisInitance()</h5><blockquote>
 <p>&#x4F7F;&#x7528;api_start_modeller()&#x6765;&#x542F;&#x7528;Acis&#xFF0C;&#x5E76;&#x8C03;&#x7528;api_initialize_hoops_bridge()&#x663E;&#x793A;&#x7684;&#x521D;&#x59CB;&#x5316;Hoops/Acis Bridge&#xFF0C;ha_bridge&#x5C01;&#x88C5;&#x4E86;&#x5F88;&#x591A;&#x51FD;&#x6570;&#xFF0C;&#x5B9E;&#x73B0;&#x7684;&#x662F;Acis&#x4E0E;Hoops&#x4E24;&#x4E2A;&#x72EC;&#x7ACB;&#x7C7B;&#x5E93;&#x4E4B;&#x95F4;&#x7684;&#x8FDE;&#x63A5;&#x3002;</p>
 </blockquote>
+<a id="more"></a>
 <h5 id="void-unlock-spatial-products-9517"><a href="#void-unlock-spatial-products-9517" class="headerlink" title="void unlock_spatial_products_9517()"></a>void unlock_spatial_products_9517()</h5><blockquote>
 <p>&#x5305;&#x542B;&#x4E86;&#x542F;&#x7528;acis&#x7684;&#x5BC6;&#x7801;</p>
 </blockquote>
